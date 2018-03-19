@@ -1,0 +1,105 @@
+package main;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+public class MainknapSack {
+
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		int value1 = 5;
+		int weight1 = 2;
+		int value2 = 4;
+		int weight2 = 3;
+		int maxW = 20;
+		
+		Map<Integer, Integer> mapSac = new HashMap<Integer, Integer>();
+		Map<Integer, Integer> bag = new HashMap<Integer, Integer>();
+		
+		mapSac.put(value1, weight1);
+		mapSac.put(value2, weight2);
+		
+		List<Integer> sortedListKey = sortedMapByValue(mapSac);
+		
+		int capacity = maxW;
+		
+		while(capacity > 0 && (existAnyItem(mapSac, capacity))) {
+			
+			addItemToBag(bag, mapSac, capacity, sortedListKey);
+			
+			capacity = availBag(bag, maxW);
+		}
+		
+		System.out.println(valueBag(bag));
+	}
+
+	public static boolean existAnyItem(Map<Integer, Integer> mapSac, int capacity) {
+		
+		return mapSac.entrySet().stream().filter(a -> a.getValue() <= capacity).count() > 0;
+	}
+	
+	public static void addItemToBag(Map<Integer, Integer> bac, Map<Integer, Integer> mapSac, int capacity, List<Integer> list) {
+		
+		Map<Integer, Integer> reducedMap = mapSortedAndCapacity(mapSac, capacity, list);
+		
+		Iterator<Integer> ite = list.iterator();
+		
+		while(ite.hasNext()) {
+			Integer num = ite.next();
+			
+			if(reducedMap.containsKey(num)) {
+				bac.put(num, mapSac.get(num));
+				
+				list.remove(num);
+				mapSac.remove(num);
+				
+				break;
+			}
+		}
+		
+	}
+	
+	public static Map<Integer, Integer> mapSortedAndCapacity(Map<Integer, Integer> mapSac, int capacity, List<Integer> list) {
+		
+		//return mapSac.entrySet().stream().filter(a -> a.getValue() <= capacity).collect(Collectors.toMap(e->e.getKey(),e->e.getValue()));
+		return mapSac.entrySet().stream().filter(p -> list.contains(p.getKey())).filter(a -> a.getValue() <= capacity).collect(Collectors.toMap(e->e.getKey(),e->e.getValue()));
+	}
+	
+	public static Integer availBag(Map<Integer, Integer> bag, int maxCapacity) {
+		
+		int capacity = maxCapacity;
+		
+		for(Integer key : bag.keySet()) {
+			
+			capacity = capacity - bag.get(key);
+		}
+		
+		return capacity;
+	}
+	
+	public static Integer valueBag(Map<Integer, Integer> bag) {
+		
+		int value = 0;
+		
+		for(Integer key : bag.keySet()) {
+			
+			value = value + key;
+		}
+		
+		return value;
+	}
+	
+	public static List<Integer> sortedMapByValue(Map<Integer, Integer> map) {
+		
+		List<Integer> l = new ArrayList<Integer>(map.keySet());
+		Collections.sort(l);
+		Collections.reverse(l);
+		
+		return l;
+	}
+}
